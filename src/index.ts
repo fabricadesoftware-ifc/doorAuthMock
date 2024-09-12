@@ -5,8 +5,13 @@ import cors from "cors";
 import bp from "body-parser";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
+import { Port } from "./interface/interface_index.js";
 
-const port: number = 8087;
+
+const port: Port = {
+  port: 8087
+
+}
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
