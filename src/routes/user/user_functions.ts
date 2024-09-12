@@ -1,12 +1,16 @@
 import express from "express";
 import { listAllUser, createUser, isUserSynced } from "../../db/db.js";
+import { Request, Response } from "express";
+import { CreateUser } from "../../interface/interface_index.js";
+import { user } from "@prisma/client";
 const router = express.Router();
 
-router.post("/create/", (req: express.Request, res: express.Response) => {
+router.post("/create/", (req: Request, res: Response) => {
   const name: string = req.body.name;
   const email: string = req.body.email;
 
   createUser(name, email);
+
 
   res.send("User created");
 });
