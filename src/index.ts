@@ -6,12 +6,11 @@ import bp from "body-parser";
 import { Server } from "socket.io";
 import { createServer } from "node:http";
 import { Port } from "./interface/interface_index.js";
+import { Request, Response } from "express";
 
 
-const port: Port = {
-  port: 8087
 
-}
+const port: Port = { port: 8087 }
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {
@@ -27,7 +26,7 @@ app.use(cors()); // Allow all origins
 app.use(door);
 app.use(user);
 
-app.get("/", (req: express.Request, res: express.Response) => {
+app.get("/", (req: Request, res: Response) => {
   console.log(req.ip);
   res.send("System working");
 });
