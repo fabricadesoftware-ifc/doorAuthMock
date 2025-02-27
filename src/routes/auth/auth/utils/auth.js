@@ -6,6 +6,7 @@ const { generateToken, generatePasswordResetToken } = require("./token");
 const validateEmail = require("../../../../helpers/validate/fields");
 const { emailForgetPassword } = require("../../../../helpers/mail/mail");
 const { ValidationError, AuthError } = require("../../../../helpers");
+const { logger } = require("../../../../middlewares");
 
 const cache = new NodeCache({ stdTTL: 864000, checkperiod: 1800 });
 const prisma = new PrismaClient();
@@ -77,16 +78,19 @@ async function loginUser(email, password) {
 
 async function verifyUser(userData) {
   try {
+    logger.info(userData)
     const cacheKey = `user_${userData.userId}`;
 
     const cachedUser = cache.get(cacheKey);
     if (cachedUser) {
+      logger.info(cachedUser)
       return cachedUser;
     }
 
     const user = await prisma.user.findUnique({
       where: { id: userData.userId },
     });
+    logger.info(user)
 
     if (!user) {
       return new AuthError("User not found");

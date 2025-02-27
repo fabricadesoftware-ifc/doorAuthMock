@@ -6,7 +6,7 @@ const {
   dateFormat,
   NotFoundError,
   ValidationError,
-} = require("../../../../helpers/");
+} = require("../../../../helpers");
 
 const cache = new NodeCache({ stdTTL: 864000, checkperiod: 3600 });
 const prisma = new PrismaClient();

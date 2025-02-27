@@ -15,7 +15,7 @@ const verifyToken = (req, res, next) => {
 
   try {
     if (token == DOOR_KEY){
-      req.user = { userId: 4 };
+      req.user = { userId: 777 };
       next();
     }else{
       const verified = jwt.verify(token, secretKey);

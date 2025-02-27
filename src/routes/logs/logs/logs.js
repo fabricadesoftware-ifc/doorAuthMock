@@ -1,7 +1,7 @@
 const express = require("express");
 const { PrismaClient } = require("@prisma/client");
 
-const { dateFormat } = require("../../../helpers/");
+const { dateFormat } = require("../../../helpers");
 const io = require("../../../../app");
 
 const prisma = new PrismaClient();
