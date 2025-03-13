@@ -1,6 +1,11 @@
 const { PrismaClient } = require("@prisma/client");
 
 const { HealthError, ValidationError } = require("../../../../helpers");
+const NodeCache = require("node-cache");
+const { logger } = require("../../../../middlewares");
+const axios = require("axios");
+
+const cache = new NodeCache({ stdTTL: 864000, checkperiod: 1800 });
 
 const prisma = new PrismaClient();
 
@@ -40,7 +45,7 @@ async function getIp(req) {
     const cachedIp = cache.get(cacheKey);
 
     if (cachedIp) {
-      return cachedIp.ip;
+      return cachedIp.ip.ip;
     }
 
     const ip = await prisma.ip.findFirst();
@@ -50,11 +55,34 @@ async function getIp(req) {
     }
     const userToCache = { ip };
     cache.set(cacheKey, userToCache);
-    return userToCache.ip;
+    logger.info("health", userToCache);
+    return userToCache.ip.ip;
   } catch (error) {
     console.error(error);
     return new HealthError(`Ip check failed: ${error.message}`);
   }
 }
 
-module.exports = { checkHealth, checkIp, getIp };
+async function updateCache(req){
+  try{
+    const ip = await getIp(req);
+    logger.info("passou aqui")
+    if (!ip) {
+      return new HealthError("Ip not found");
+    }
+    const url = "http://" + ip + ":19003/cache";
+
+    const response = await axios.get(url, {
+      headers : {
+        Authorization: "Bearer " + DOOR_KEY
+      }
+    });
+    
+    return response.data;
+  }
+  catch(error){
+    return new HealthError(`Cache update failed: ${error.message}`);
+  }
+}
+
+module.exports = { checkHealth, checkIp, getIp, updateCache };

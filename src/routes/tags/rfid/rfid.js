@@ -114,6 +114,7 @@ router.get("/", async (req, res) => {
         .json({ success: false, error: "User no have permision" });
     }
     const allRfids = await getAllRfids();
+    logger.info(allRfids)
     res.status(200).json({ success: true, data: allRfids });
   } catch (error) {
     res

@@ -1,6 +1,9 @@
 const express = require("express");
 const { verifyToken } = require("./middlewares/");
 const RateLimit = require("express-rate-limit");
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require("../swagger-output.json");
+
 
 const app = express();
 
@@ -23,6 +26,8 @@ app.use("/logs", limiter, verifyToken, logs);
 app.use("/tags", limiter, verifyToken, tags);
 app.use("/door", limiter, verifyToken, door);
 app.use("/user", limiter, verifyToken, user);
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 
 app.get("/", (req, res) => {

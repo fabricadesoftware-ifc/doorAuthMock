@@ -2,6 +2,7 @@ const { PrismaClient } = require("@prisma/client");
 const NodeCache = require("node-cache");
 
 const { logger } = require("../../../../middlewares");
+const  { updateCache }  = require("../../../health/heartbeat/utils/health");
 const {
   dateFormat,
   NotFoundError,
@@ -170,7 +171,7 @@ async function permissionRfid(rfid) {
       where: { id: rfid },
       data: { valid: !tag.valid },
     });
-
+    await updateCache(req);
     return updatedRfid;
   } catch (error) {
     return new Error(`Failed to update RFID permission: ${error.message}`);
@@ -186,10 +187,10 @@ async function getRfid(rfid) {
     const tag = await prisma.rfidTag.findUnique({ where: { rfid } });
 
     if (!tag) {
-      return new NotFoundError("RFID not found");
+      return false;
     }
 
-    return tag;
+    return true;
   } catch (error) {
     return new Error(`Failed to get RFID: ${error.message}`);
   }
