@@ -83,7 +83,6 @@ async function verifyUser(userData) {
 
     const cachedUser = cache.get(cacheKey);
     if (cachedUser) {
-      logger.info(cachedUser)
       return cachedUser;
     }
 

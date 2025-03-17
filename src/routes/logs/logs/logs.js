@@ -10,15 +10,42 @@ router = new express.Router();
 
 router.get("/", async (req, res) => {
   try {
-    const logs = await prisma.logs.findMany();
+
+    let { page, limit } = req.query;
+    page = parseInt(page) || 1; 
+    limit = parseInt(limit) || 10; 
+    const skip = (page - 1) * limit;
+
+    const logs = await prisma.logs.findMany({
+      skip: skip,
+      take: limit,
+      orderBy: {
+        date: "desc", 
+      },
+    });
+
     logs.forEach((log) => {
       log.date = dateFormat(log.date);
     });
-    res.status(200).json({ success: true, data: logs });
+
+    const totalLogs = await prisma.logs.count();
+    const totalPages = Math.ceil(totalLogs / limit);
+
+    res.status(200).json({
+      success: true,
+      data: logs,
+      pagination: {
+        page,
+        limit,
+        totalLogs,
+        totalPages,
+      },
+    });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
-  } 
+  }
 });
+
 
 router.post("/", async (req, res) => {
   let { type, message } = req.body;
