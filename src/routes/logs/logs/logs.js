@@ -10,7 +10,7 @@ router = new express.Router();
 
 router.get("/", async (req, res) => {
   try {
-
+    //criar filtro por data especifica
     let { page, limit } = req.query;
     page = parseInt(page) || 1; 
     limit = parseInt(limit) || 10; 
@@ -49,6 +49,7 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   let { type, message } = req.body;
+  console.log(req.body)
   if (!type || !message) {
     return res.status(400).json({ error: "type and message are required" });
   }

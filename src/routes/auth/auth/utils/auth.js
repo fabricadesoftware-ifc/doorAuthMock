@@ -56,13 +56,19 @@ async function loginUser(email, password) {
 
   try {
     const user = await prisma.user.findUnique({ where: { email } });
+    logger.info(`Usuario buscado: ${JSON.stringify(user)}`);
+
     if (!user) {
-      return new AuthError("User not found");
+      throw new AuthError("User not found");
     }
 
+    logger.info(`Senha do usuário: ${user.password}`);
+
     const isMatch = await bcrypt.compare(password, user.password);
+    logger.info(`Comparação de senha: ${isMatch}`);
+
     if (!isMatch) {
-      return new AuthError("Incorrect password");
+      throw new AuthError("Incorrect password");
     }
 
     const token = generateToken(user.id);
@@ -72,13 +78,14 @@ async function loginUser(email, password) {
     });
     return { token, user };
   } catch (error) {
+    logger.error(`Login failed: ${error.message}`);
     return new Error(`Login failed: ${error.message}`);
   }
 }
 
 async function verifyUser(userData) {
   try {
-    logger.info(userData)
+    logger.info(userData);
     const cacheKey = `user_${userData.userId}`;
 
     const cachedUser = cache.get(cacheKey);
@@ -89,16 +96,13 @@ async function verifyUser(userData) {
     const user = await prisma.user.findUnique({
       where: { id: userData.userId },
     });
-    logger.info(user)
+    logger.info(user);
 
     if (!user) {
       return new AuthError("User not found");
     }
 
-    const isSuper = user.isSuper;
-    const isVerify = user.isVerified;
-    const userToCache = { isSuper, isVerify };
-
+    const userToCache = { isSuper: user.isSuper, isVerify: user.isVerified };
     cache.set(cacheKey, userToCache);
 
     return userToCache;
@@ -125,13 +129,43 @@ async function forgetPassword(email) {
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(token, salt);
 
-    const update = await prisma.user.update({
+    await prisma.user.update({
       where: { id: user.id },
       data: { password: hashedPassword },
     });
 
     const mail = await emailForgetPassword(token, [email]);
-    return { mail, update };
+    return { mail, update: user };
+  } catch (error) {
+    return new Error(`Password reset failed: ${error.message}`);
+  }
+}
+
+async function resetPassword(token, newPassword) {
+  if (!token || !newPassword) {
+    return new ValidationError("Token and new password are required");
+  }
+
+  if (newPassword.length < 6) {
+    return new ValidationError("Password must be at least 6 characters long");
+  }
+
+  try {
+    const userData = verifyToken(token);
+    const user = await prisma.user.findUnique({ where: { id: userData.userId } });
+    if (!user) {
+      return new AuthError("User not found");
+    }
+
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { password: hashedPassword },
+    });
+
+    return "Password updated successfully";
   } catch (error) {
     return new Error(`Password reset failed: ${error.message}`);
   }
@@ -142,4 +176,5 @@ module.exports = {
   registerUser,
   verifyUser,
   forgetPassword,
+  resetPassword,
 };

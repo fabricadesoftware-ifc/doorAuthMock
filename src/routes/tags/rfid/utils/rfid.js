@@ -89,10 +89,18 @@ async function removeRfid(id) {
 }
 
 async function getAllRfids() {
+  const cacheKey = "tag_rfid_all";
   try {
+    // Tenta buscar os dados no banco de dados
     const rfids = await prisma.rfidTag.findMany({
       include: { user: true },
     });
+
+    if (!rfids) {
+      throw new Error("RFIDs não encontrados no banco de dados");
+    }
+
+    // Formata as datas e remove a senha do usuário, se existir
     rfids.forEach((rfid) => {
       rfid.created_at = dateFormat(rfid.created_at);
       rfid.last_time_used = dateFormat(rfid.last_time_used);
@@ -101,10 +109,20 @@ async function getAllRfids() {
         delete rfid.user.password;
       }
     });
-    logger.info("Retrieved all RFIDs successfully");
+    cache.set(cacheKey, rfids);
+    logger.info("RFIDs recuperados com sucesso do banco de dados");
     return rfids;
   } catch (error) {
-    return new Error(`Failed to retrieve RFIDs: ${error.message}`);
+    const cachedRfids = cache.get(cacheKey);
+    if (cachedRfids) {
+      logger.warn(
+        "Falha ao buscar no banco. Retornando dados do cache: " + error.message
+      );
+      return cachedRfids;
+    }
+    return new Error(
+      `Falha ao recuperar os RFIDs e nenhum cache disponível: ${error.message}`
+    );
   }
 }
 
