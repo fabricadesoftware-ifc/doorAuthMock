@@ -6,7 +6,7 @@
     "version": "1.0.0"
   },
   "host": "localhost:3000",
-  "basePath": "/api",
+  "basePath": "/",
   "schemes": [
     "http"
   ],
@@ -32,10 +32,10 @@
               "type": "object",
               "properties": {
                 "email": {
-                  "example": "any"
+                  "example": "string"
                 },
                 "password": {
-                  "example": "any"
+                  "example": "string"
                 }
               }
             }
@@ -62,13 +62,13 @@
               "type": "object",
               "properties": {
                 "name": {
-                  "example": "any"
+                  "example": "string"
                 },
                 "email": {
-                  "example": "any"
+                  "example": "string"
                 },
                 "password": {
-                  "example": "any"
+                  "example": "string"
                 }
               }
             }
@@ -115,7 +115,37 @@
               "type": "object",
               "properties": {
                 "email": {
-                  "example": "any"
+                  "example": "string"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "400": {
+            "description": "Bad Request"
+          }
+        }
+      }
+    },
+    "/api/auth/reset": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "token": {
+                  "example": "string"
+                },
+                "newPassword": {
+                  "example": "string"
                 }
               }
             }
@@ -155,7 +185,7 @@
               "type": "object",
               "properties": {
                 "ip": {
-                  "example": "any"
+                  "example": "string"
                 }
               }
             }
@@ -177,6 +207,28 @@
     "/api/logs/": {
       "get": {
         "description": "",
+        "parameters": [
+          {
+            "name": "page",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "limit",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "startDate",
+            "in": "query",
+            "type": "string"
+          },
+          {
+            "name": "endDate",
+            "in": "query",
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -202,10 +254,10 @@
               "type": "object",
               "properties": {
                 "type": {
-                  "example": "any"
+                  "ERROR": "string"
                 },
                 "message": {
-                  "example": "any"
+                  "erro ao logar": "string"
                 }
               }
             }
@@ -238,7 +290,7 @@
               "type": "object",
               "properties": {
                 "rfid": {
-                  "example": "any"
+                  "example": "string"
                 }
               }
             }
@@ -274,10 +326,10 @@
               "type": "object",
               "properties": {
                 "rfid": {
-                  "example": "any"
+                  "example": "string"
                 },
                 "userId": {
-                  "example": "any"
+                  "example": "string"
                 }
               }
             }
@@ -313,10 +365,10 @@
               "type": "object",
               "properties": {
                 "rfid": {
-                  "example": "any"
+                  "example": "string"
                 },
                 "userId": {
-                  "example": "any"
+                  "example": "int"
                 }
               }
             }
@@ -586,19 +638,19 @@
               "type": "object",
               "properties": {
                 "id": {
-                  "example": "any"
+                  "example": "int"
                 },
                 "name": {
-                  "example": "any"
+                  "example": "string"
                 },
                 "email": {
-                  "example": "any"
+                  "example": "string"
                 },
                 "isVerified": {
-                  "example": "any"
+                  "example": "boolean"
                 },
                 "isSuper": {
-                  "example": "any"
+                  "example": "boolean"
                 }
               }
             }
