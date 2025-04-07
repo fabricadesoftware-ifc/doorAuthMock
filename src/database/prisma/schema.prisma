@@ -49,6 +49,7 @@ model logs {
 model ip {
   id         Int          @id @default(autoincrement())
   ip         String       @unique
+  mode       Boolean      @default(false)
   created_at DateTime     @default(now())
   updated_at DateTime?    @updatedAt
 }
