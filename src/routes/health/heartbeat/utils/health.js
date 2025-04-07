@@ -63,6 +63,23 @@ async function getIp(req) {
   }
 }
 
+async function getMode() {
+  try {
+    const mode = await prisma.mode.findFirst({
+      where: {
+        id: 1,
+      },
+    });
+    if (!mode) {
+      return new HealthError("Mode not found");
+    }
+    return mode;
+  } catch (error) {
+    console.error(error);
+    return new HealthError(`Mode check failed: ${error.message}`);
+  }
+}
+
 async function updateCache(req){
   try{
     const ip = await getIp(req);
@@ -85,4 +102,4 @@ async function updateCache(req){
   }
 }
 
-module.exports = { checkHealth, checkIp, getIp, updateCache };
+module.exports = { checkHealth, checkIp, getIp, updateCache, getMode };
