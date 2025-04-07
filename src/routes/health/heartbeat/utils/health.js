@@ -45,7 +45,7 @@ async function getIp(req) {
     const cachedIp = cache.get(cacheKey);
 
     if (cachedIp) {
-      return cachedIp.ip.ip;
+      return cachedIp.ip;
     }
 
     const ip = await prisma.ip.findFirst();
