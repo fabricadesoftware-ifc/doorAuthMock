@@ -67,6 +67,19 @@ router.post("/mode", async (req, res) => {
   }
 });
 
+router.get("/mode", async (req, res) => {
+  try{
+    const mode = await getMode();
+    if (!mode) {
+      return res.status(404).json({ success: false, error: "Mode not found" });
+    }
+    res.status(200).json({ success: true, data: mode });
+  }
+  catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
 router.get("/cache", async (req, res) => {
   try {
     const ip = await getIp(req);
