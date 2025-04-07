@@ -37,7 +37,7 @@ router.get("/mode", async (req, res) => {
       res.status(500).json({ error: "Ip not found" });
     }
     logger.info(ip);
-    const url = "http://" + ip + ":19003/toggle-mode";
+    const url = "http://" + ip.ip + ":19003/toggle-mode";
     logger.info(url);
     const response = await axios.get(url, {
       headers: { Authorization: "Bearer " + DOOR_KEY },

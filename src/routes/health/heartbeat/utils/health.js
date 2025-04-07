@@ -55,8 +55,8 @@ async function getIp(req) {
     }
     const userToCache = { ip };
     cache.set(cacheKey, userToCache);
-    logger.info("health", userToCache);
-    return userToCache.ip.ip;
+    logger.info("health" + JSON.stringify(userToCache).ip);
+    return userToCache.ip;
   } catch (error) {
     console.error(error);
     return new HealthError(`Ip check failed: ${error.message}`);
