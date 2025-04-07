@@ -61,7 +61,6 @@ router.get("/", async (req, res) => {
 
 router.post("/", async (req, res) => {
   let { type, message } = req.body;
-  console.log(req.body)
   if (!type || !message) {
     return res.status(400).json({ error: "type and message are required" });
   }
