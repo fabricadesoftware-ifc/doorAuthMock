@@ -14,10 +14,10 @@ model user {
   password   String
   isSuper    Boolean      @default(false)
   created_at DateTime     @default(now())
+  token     String?       @unique
   updated_at DateTime?    @updatedAt
   isVerified Boolean      @default(false)
   tags_owned rfidTag[]    @relation("UserTags")
-
   logs logs[]
 }
 

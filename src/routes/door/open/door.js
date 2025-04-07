@@ -29,14 +29,17 @@ router.get("/open", async (req, res) => {
 
 router.get("/mode", async (req, res) => {
   try {
-    const ip = getIp();
+    const ip = await getIp(req);
     const { isVerify, isSuper } = await verifyUser.verifyUser(req.user);
     if (!isVerify || !isSuper) {
       res.status(403).json({ error: "User no have permision" });
     } else if (!ip) {
       res.status(500).json({ error: "Ip not found" });
     }
-    const response = await axios.get(ip + ":19003//toggle-mode", {
+    logger.info(ip);
+    const url = "http://" + ip + ":19003/toggle-mode";
+    logger.info(url);
+    const response = await axios.get(url, {
       headers: { Authorization: "Bearer " + DOOR_KEY },
     });
     res.status(200).json({ success: true, data: response.data });

@@ -2,11 +2,12 @@ const { PrismaClient } = require("@prisma/client");
 const NodeCache = require("node-cache");
 
 const { logger } = require("../../../../middlewares");
+const  { updateCache }  = require("../../../health/heartbeat/utils/health");
 const {
   dateFormat,
   NotFoundError,
   ValidationError,
-} = require("../../../../helpers/");
+} = require("../../../../helpers");
 
 const cache = new NodeCache({ stdTTL: 864000, checkperiod: 3600 });
 const prisma = new PrismaClient();
@@ -88,10 +89,18 @@ async function removeRfid(id) {
 }
 
 async function getAllRfids() {
+  const cacheKey = "tag_rfid_all";
   try {
+    // Tenta buscar os dados no banco de dados
     const rfids = await prisma.rfidTag.findMany({
       include: { user: true },
     });
+
+    if (!rfids) {
+      throw new Error("RFIDs não encontrados no banco de dados");
+    }
+
+    // Formata as datas e remove a senha do usuário, se existir
     rfids.forEach((rfid) => {
       rfid.created_at = dateFormat(rfid.created_at);
       rfid.last_time_used = dateFormat(rfid.last_time_used);
@@ -100,10 +109,20 @@ async function getAllRfids() {
         delete rfid.user.password;
       }
     });
-    logger.info("Retrieved all RFIDs successfully");
+    cache.set(cacheKey, rfids);
+    logger.info("RFIDs recuperados com sucesso do banco de dados");
     return rfids;
   } catch (error) {
-    return new Error(`Failed to retrieve RFIDs: ${error.message}`);
+    const cachedRfids = cache.get(cacheKey);
+    if (cachedRfids) {
+      logger.warn(
+        "Falha ao buscar no banco. Retornando dados do cache: " + error.message
+      );
+      return cachedRfids;
+    }
+    return new Error(
+      `Falha ao recuperar os RFIDs e nenhum cache disponível: ${error.message}`
+    );
   }
 }
 
@@ -170,7 +189,7 @@ async function permissionRfid(rfid) {
       where: { id: rfid },
       data: { valid: !tag.valid },
     });
-
+    await updateCache(req);
     return updatedRfid;
   } catch (error) {
     return new Error(`Failed to update RFID permission: ${error.message}`);
@@ -186,10 +205,10 @@ async function getRfid(rfid) {
     const tag = await prisma.rfidTag.findUnique({ where: { rfid } });
 
     if (!tag) {
-      return new NotFoundError("RFID not found");
+      return false;
     }
 
-    return tag;
+    return true;
   } catch (error) {
     return new Error(`Failed to get RFID: ${error.message}`);
   }

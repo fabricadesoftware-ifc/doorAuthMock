@@ -11,6 +11,7 @@ const {
 } = require("./utils/rfid");
 const validateRequestBody = require("../../../helpers/validate/fields");
 const verifyUser = require("../../auth/auth/utils/auth");
+const { logger } = require("../../../middlewares");
 
 const router = new express.Router();
 
@@ -106,6 +107,7 @@ router.get("/", async (req, res) => {
   }
   try {
     const { isVerify } = await verifyUser.verifyUser(req.user);
+    logger.info(isVerify)
     if (!isVerify) {
       return res
         .status(403)
