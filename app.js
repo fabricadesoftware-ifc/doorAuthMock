@@ -14,6 +14,8 @@ const app = express();
 
 const server = createServer(app);
 
+app.use(express.static("public"));
+
 const io = new Server(server, {
   cors: {
     origin: "*",
