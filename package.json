@@ -37,5 +37,18 @@
   },
   "devDependencies": {
     "nodemon": "^3.1.7"
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "healthcheck": {
+        "path": "/api/health/health",
+        "protocol": "http",
+        "port": "5000",
+        "timeout": "10s",
+        "interval": "60s",
+        "retries": 3
+      }
+    }
   }
 }
