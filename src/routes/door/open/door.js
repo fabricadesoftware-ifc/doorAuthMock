@@ -39,7 +39,7 @@ router.post("/mode", async (req, res) => {
     const { isVerify, isSuper } = await verifyUser.verifyUser(req.user);
 
     if (!isVerify || !isSuper) {
-      return res.status(403).json({ error: "User no have permision" });
+      return res.status(403).json({ error: "User does not have permission" });
     }
     if (!ip) {
       return res.status(500).json({ error: "Ip not found" });
