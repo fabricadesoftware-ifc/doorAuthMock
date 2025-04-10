@@ -161,11 +161,6 @@ router.post("/:rfid", async (req, res) => {
     res
       .status(201)
       .json({ success: true, message: "RFID created successfully" });
-    await userLog(
-      777,
-      `User ${req.user.name} created RFID ${rfid}`,
-      "CREATE"
-    );
   } catch (error) {
     res
       .status(500)
@@ -194,11 +189,6 @@ router.delete("/:id", async (req, res) => {
         message: "RFID deleted successfully",
         data: deletedRfid,
       });
-    await userLog(
-      req.user.id,
-      `User ${req.user.name} deleted RFID ${id}`,
-      "DELETE"
-    );
   } catch (error) {
     res
       .status(500)
@@ -227,11 +217,6 @@ router.put("/update/:id", async (req, res) => {
         message: "RFID updated successfully",
         data: updatedRfid,
       });
-    await userLog(
-      req.user.id,
-      `User ${req.user.name} updated RFID ${id}`,
-      "UPDATE"
-    );
   } catch (error) {
     res
       .status(500)
