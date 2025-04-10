@@ -42,7 +42,14 @@ async function registerUser(email, password, name) {
     const salt = await bcrypt.genSalt(12);
     const hashedPassword = await bcrypt.hash(password, salt);
     const user = await prisma.user.create({
-      data: { email, password: hashedPassword, name, picture: getRandomImageUrl("https://door-api.fexcompany.me") }, //mudar depois paia
+      data: {
+        email,
+        password: hashedPassword,
+        name,
+        picture: getRandomImageUrl(
+          "https://door-api.fabricadesoftware.ifc.edu.br"
+        ),
+      }, //mudar depois paia
     });
     return user;
   } catch (error) {
