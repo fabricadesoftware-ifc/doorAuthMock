@@ -12,6 +12,7 @@ const {
 const validateRequestBody = require("../../../helpers/validate/fields");
 const verifyUser = require("../../auth/auth/utils/auth");
 const { logger } = require("../../../middlewares");
+const { userLog } = require("../../logs/logs/logs");
 
 const router = new express.Router();
 
@@ -49,12 +50,18 @@ router.post("/assign", async (req, res) => {
         .json({ success: false, error: "User no have permision" });
     }
     const isAssigned = await assignRfidToUser(rfid, Number(userId));
-    if (isAssigned) {
+    if (!isAssigned) {
       return res
-        .status(200)
-        .json({ success: true, message: "RFID assigned to user successfully" });
+        .status(401)
+        .json({ success: false, message: "RFID not assigned" });
     }
-    res.status(401).json({ success: false, message: "RFID not assigned" });
+   
+    res.status(200).json({ success: true, message: "RFID assigned to user successfully" });
+    await userLog(
+      req.user.id,
+      `User ${req.user.name} assigned RFID ${rfid} to user ${userId}`,
+      "UPDATE"
+    );
   } catch (error) {
     res
       .status(500)
@@ -81,15 +88,20 @@ router.post("/desassign", async (req, res) => {
         .json({ success: false, error: "User no have permision" });
     }
     const isDesassigned = await desAssignRfidToUser(rfid, Number(userId));
-    if (isDesassigned) {
-      return res
-        .status(200)
-        .json({
-          success: true,
-          message: "RFID desassigned to user successfully",
-        });
+    if (!isDesassigned) {
+      res.status(401).json({ success: false, message: "RFID not desassigned" });
+      
     }
-    res.status(401).json({ success: false, message: "RFID not desassigned" });
+    return res.status(200).json({
+      success: true,
+      message: "RFID desassigned to user successfully",
+    });
+    await userLog(
+      req.user.id,
+      `User ${req.user.name} desassigned RFID ${rfid} to user ${userId}`,
+      "UPDATE"
+    );
+    
   } catch (error) {
     res
       .status(500)
@@ -149,6 +161,11 @@ router.post("/:rfid", async (req, res) => {
     res
       .status(201)
       .json({ success: true, message: "RFID created successfully" });
+    await userLog(
+      777,
+      `User ${req.user.name} created RFID ${rfid}`,
+      "CREATE"
+    );
   } catch (error) {
     res
       .status(500)
@@ -177,6 +194,11 @@ router.delete("/:id", async (req, res) => {
         message: "RFID deleted successfully",
         data: deletedRfid,
       });
+    await userLog(
+      req.user.id,
+      `User ${req.user.name} deleted RFID ${id}`,
+      "DELETE"
+    );
   } catch (error) {
     res
       .status(500)
@@ -205,6 +227,11 @@ router.put("/update/:id", async (req, res) => {
         message: "RFID updated successfully",
         data: updatedRfid,
       });
+    await userLog(
+      req.user.id,
+      `User ${req.user.name} updated RFID ${id}`,
+      "UPDATE"
+    );
   } catch (error) {
     res
       .status(500)

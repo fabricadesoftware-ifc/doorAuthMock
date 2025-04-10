@@ -12,6 +12,7 @@ model user {
   name       String
   email      String       @unique
   password   String
+  picture    String?      @default("https://cdn-icons-png.flaticon.com/512/12225/12225935.png")
   isSuper    Boolean      @default(false)
   created_at DateTime     @default(now())
   token     String?       @unique
@@ -49,6 +50,7 @@ model logs {
 model ip {
   id         Int          @id @default(autoincrement())
   ip         String       @unique
+  mode       Boolean      @default(false)
   created_at DateTime     @default(now())
   updated_at DateTime?    @updatedAt
 }

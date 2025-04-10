@@ -84,7 +84,43 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.get("/logs/user/:userId", async (req, res) => {
+  const { userId } = req.params;
+  try {
+    const logs = await prisma.logs.findMany({
+      where: {
+        user_id: userId,
+      },
+      orderBy: {
+        date: "desc",
+      },
+    });
+
+    logs.forEach((log) => {
+      log.date = dateFormat(log.date);
+    });
+
+    res.status(200).json({ success: true, data: logs });
+  } catch (error) {
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+async function userLog(userId, message, type){
+  try {
+    const log = await prisma.logs.create({
+      data: {
+        user_id: userId,
+        message,
+        type,
+      },
+    });
+    io.io.emit("logs", { data: log });
+  } catch (error) {
+    console.error("Error creating user log:", error.message);
+  }
+}
 
 
 
-module.exports = router;
+module.exports = router, { userLog };
