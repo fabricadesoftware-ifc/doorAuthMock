@@ -9,7 +9,8 @@ const path = require("path");
  * @returns {string} - URL completa da imagem aleatória
  */
 function getRandomImageUrl(baseUrl, folder = "avatar") {
-  const folderPath = path.join(__dirname, "public", folder);
+  const folderPath = path.join(__dirname, "../../../public", folder);
+  console.log(folderPath);
 
   if (!fs.existsSync(folderPath)) {
     throw new Error(`A pasta '${folder}' não foi encontrada em public/`);

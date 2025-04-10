@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 
 const { getAllUsers, getUserById, deleteUser, updateUser} = require("./utils/user");
 const { verifyUser } = require("../../auth/auth/utils/auth");
+const {userLog} = require("../../logs/logs/logs");
 
 const router = new express.Router();
 
@@ -48,6 +49,7 @@ router.delete("/users/:id", async (req, res) => {
         }
         const user = await deleteUser(Number(id));
         res.status(200).json({ success: true, data: user });
+        await userLog(req.user.id, `User ${req.user.name} deleted user ${user.name}`, "DELETE")
     } catch (error) {
         res.status(400).json({ success: false, error: error.message });
     }
@@ -62,15 +64,17 @@ router.put("/users/:id", async (req, res) => {
     }
     try {
         const userId = req.params.id;
-        const { id, name, email, isVerified, isSuper } = req.body;
+        const { id, name, email, isVerified, isSuper, picture } = req.body;
         const user = await updateUser(Number(userId), {
           id,
           name,
           email,
           isVerified,
           isSuper,
+          picture,
         });
         res.status(200).json({ success: true, data: user });
+        await userLog(req.user.id, `User ${req.user.name} updated user ${user.name}`, "UPDATE")
     } catch (error) {
         res.status(400).json({ success: false, error: error.message });
     }
@@ -96,6 +100,7 @@ router.patch("/users/:id", async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, salt);
         const user = await updateUser(Number(id), { hashedPassword });
         res.status(200).json({ success: true, data: user });
+        await userLog(req.user.id, `User ${req.user.name} updated password`, "UPDATE")
     }
     catch(error){
         res.status(400).json({ success: false, error: error.message });
