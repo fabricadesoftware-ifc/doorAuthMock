@@ -14,11 +14,11 @@ router.get("/open", async (req, res) => {
     res.status(403).json({ success: false, error: "User no have permision" });
   }
   try {
-    const ip = await getIp();
+    const ip = await getIp(req);
     if (!ip) {
       res.status(404).json({ success: false, error: "Ip not found" });
     }
-    await axios.get(ip + ":19003/open-door", {
+    await axios.get("http://" + ip + ":19003/open-door", {
       headers: { Authorization: "Bearer " + DOOR_KEY },
     });
     res.status(200).json({ success: true, message: "Door opened" });
