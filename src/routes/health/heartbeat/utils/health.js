@@ -59,7 +59,7 @@ async function getIp(req) {
 
 async function getMode() {
   try {
-    const mode = await prisma.mode.findFirst({
+    const mode = await prisma.ip.findFirst({
       where: {
         id: 1,
       },
@@ -67,7 +67,7 @@ async function getMode() {
     if (!mode) {
       return new HealthError("Mode not found");
     }
-    return mode;
+    return mode.mode;
   } catch (error) {
     console.error(error);
     return new HealthError(`Mode check failed: ${error.message}`);
@@ -82,6 +82,7 @@ async function updateCache(req){
       return new HealthError("Ip not found");
     }
     const url = "http://" + ip + ":19003/cache";
+    logger.info("Cache URL: " + url);
 
     const response = await axios.get(url, {
       headers : {

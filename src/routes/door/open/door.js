@@ -18,7 +18,9 @@ router.get("/open", async (req, res) => {
     if (!ip) {
       res.status(404).json({ success: false, error: "Ip not found" });
     }
-    await axios.get("http://" + ip + ":19003/open-door", {
+    const url = "http://" + ip + ":19003/open-door";
+    logger.info("Opening door at " + url);
+    await axios.get(url, {
       headers: { Authorization: "Bearer " + DOOR_KEY },
     });
     res.status(200).json({ success: true, message: "Door opened" });
